@@ -1,0 +1,166 @@
+library(arm) #Note: arm package in R must be preinstalled, This in Andrew Gelman's multilevel package
+library(car) #Note: car package in R must be preinstalled, This has some basic functions
+
+dataset<-read.table("AyoubGarretsonData.txt",sep='\t')
+WVSEVScombined<-as.data.frame(dataset)
+
+#-------------------------------------------------------------------
+#------------CodeBook-----Models Below------------------------------
+#-------------------------------------------------------------------
+# SurveyCountry ~ Unique Identifier for each Survey in the WVS/EVS
+# HomoScale ~ the dependent variable, R Rating on Justifability of Homosexuality
+# year ~ year of the survey
+# cmale ~ dummy indicator for Male R
+# cnevmar ~ dummy indicator for Never Married
+# cdevwid ~ dummy indicator for Divorced or Widowed
+# cageform ~ Years of Formal Education
+# cmedtown ~ dummy indicator for Residing in a Medium sized Town
+# cmedcity ~ dummy indicator for Residing in a Medium sized City
+# cbigcity ~ dummy indicator for Residing in a Big City
+# cchild ~ Number of Children in Household
+# cprot ~ dummy indicator for non-practicing protestant
+# ccath ~ dummy indicator for non-practicing catholic
+# cpracprot ~ dummy indicator for practicing protestant
+# cpraccath ~ dummy indicator for practiciing catholic
+# cnorel ~ dummy indicator for no religion
+# byear ~ Year of birth, untransformed
+# byear1880div100c ~ ((byear - 1880)/100) and then mean-centered
+# crnonman ~ dummy indicator for nonmanual occupation
+# cmanage ~ dummy indicator for manager or supervisory occupation
+# prof ~ dummy indicator for professional occupation
+# cgdp3 ~ gdp in $1,000s
+# cglobeindex ~ untransformed globalization index
+# cglobeindexb ~ mean-centered cglobeindex
+# cbanksscl ~ banks media scale
+# cbankssclb ~ mean-centered cbanksscl
+# cbankstv ~ tv component of banks media scale
+# logtvsb ~ log(cbankstv+1) and then mean-centered
+# cbanksint ~ internet component of banks media scale
+# cbanksrad ~ radio component of banks media scale
+# cbankspap ~ newspaper circulation component of banks media scale
+# cbankspapb ~ cbankspap mean centered
+# cfree ~ Freedom House Freedom of the Press Measure
+# cfree3b ~ (100-cfree) and then mean-centered
+# cintnet ~ World Bank internet pentration
+# cintnetc ~ mean-centered cintnet 
+
+
+
+#-------------------------------------------------------------------
+#Table 1, Model 1
+#-------------------------------------------------------------------
+
+modbanks<-lmer(formula = HomoScale ~ cmale+ cgdp3 + cnevmar + cdevwid + 
+    cageform + cmedtown + cmedcity + cbigcity + cprot + ccath + 
+    cpracprot + cpraccath + cothrel + byear1880div100c + (1 + byear1880div100c| SurveyCountry) +crnonman * cgdp3 + cmanager * cgdp3 + cprof * 
+    cgdp3 + cchild +cgdp3*byear1880div100c+byear1880div100c*cbankssclb
+	+cglobeindexb,data=WVSEVScombined, 
+    na.action = na.omit)
+display(modbanks,digits=3)
+#-------------------------------------------------------------------
+#Table 1, Model 2
+#-------------------------------------------------------------------
+
+modtvs<-lmer(formula = HomoScale ~ cmale+ cgdp3 + cnevmar + cdevwid + 
+    cageform + cmedtown + cmedcity + cbigcity + cprot + ccath + 
+    cpracprot + cpraccath + cothrel + byear1880div100c + (1 + byear1880div100c| SurveyCountry) +crnonman * cgdp3 + cmanager * cgdp3 + cprof * 
+    cgdp3 + cchild +cgdp3*byear1880div100c+byear1880div100c*logtvsb
+	+cglobeindexb, data=WVSEVScombined, 
+    na.action = na.omit)
+display(modtvs,digits=3)
+#-------------------------------------------------------------------
+#Table 1, Model 3
+#-------------------------------------------------------------------
+
+modpap2<-lmer(formula = HomoScale ~ cmale+ cgdp3 + cnevmar + cdevwid + 
+    cageform + cmedtown + cmedcity + cbigcity + cprot + ccath + 
+    cpracprot + cpraccath + cothrel + byear1880div100c + (1 + byear1880div100c| SurveyCountry) +crnonman * cgdp3 + cmanager * cgdp3 + cprof * 
+    cgdp3 + cchild +cgdp3*byear1880div100c+byear1880div100c*I(cbankspapb)
++cglobeindexb, data=WVSEVScombined, 
+    na.action = na.omit)
+display(modpap2,digits=3)
+#-------------------------------------------------------------------
+#Table 1, Model 4
+#-------------------------------------------------------------------
+
+modfree2<-lmer(formula = HomoScale ~ cmale+ cgdp3 + cnevmar + cdevwid + 
+    cageform + cmedtown + cmedcity + cbigcity + cprot + ccath + 
+    cpracprot + cpraccath + cothrel + byear1880div100c + (1 + byear1880div100c| SurveyCountry) +crnonman * cgdp3 + cmanager * cgdp3 + cprof * 
+    cgdp3 + cchild +cgdp3*byear1880div100c+cfree3b*byear1880div100c
+	+ cglobeindexb, data=WVSEVScombined, 
+    na.action = na.omit)
+display(modfree2,digits=3)
+#-------------------------------------------------------------------
+#Table 1, Model 5
+#-------------------------------------------------------------------
+
+modtvfree2<-lmer(formula = HomoScale ~ cmale+ cgdp3 + cnevmar + cdevwid + 
+    cageform + cmedtown + cmedcity + cbigcity + cprot + ccath + 
+    cpracprot + cpraccath + cothrel + byear1880div100c + (1 + byear1880div100c| SurveyCountry) +crnonman * cgdp3 + cmanager * cgdp3 + cprof * 
+    cgdp3 + cchild +cgdp3*byear1880div100c+byear1880div100c*logtvsb+cfree3b*byear1880div100c+cglobeindexb, 
+	data=WVSEVScombined, 
+    na.action = na.omit)
+display(modtvfree2,digits=3)
+#-------------------------------------------------------------------
+#Table 2, Model 1
+#-------------------------------------------------------------------
+
+modtvs<-lmer(formula = HomoScale ~ cmale+ cgdp3 + cnevmar + cdevwid + 
+    cageform + cmedtown + cmedcity + cbigcity + cprot + ccath + 
+    cpracprot + cpraccath + cothrel + byear1880div100c + (1 + byear1880div100c| SurveyCountry) +crnonman * cgdp3 + cmanager * cgdp3 + cprof * 
+    cgdp3 + cchild +cgdp3*byear1880div100c+byear1880div100c*logtvsb
+	+cglobeindexb, data=WVSEVScombined, 
+    na.action = na.omit, subset=(year<1992))
+display(modtvs,digits=3)
+#-------------------------------------------------------------------
+#Table 2, Model 2
+#-------------------------------------------------------------------
+
+modtvs<-lmer(formula = HomoScale ~ cmale+ cgdp3 + cnevmar + cdevwid + 
+    cageform + cmedtown + cmedcity + cbigcity + cprot + ccath + 
+    cpracprot + cpraccath + cothrel + byear1880div100c + (1 + byear1880div100c| SurveyCountry) +crnonman * cgdp3 + cmanager * cgdp3 + cprof * 
+    cgdp3 + cchild +cgdp3*byear1880div100c+byear1880div100c*logtvsb
+	+cglobeindexb, data=WVSEVScombined, 
+    na.action = na.omit, subset=(year>=1992))
+display(modtvs,digits=3)
+#-------------------------------------------------------------------
+#Table A2, Model 1
+#-------------------------------------------------------------------
+
+modint1<-lmer(formula = HomoScale ~ cmale+ cgdp3 + cnevmar + cdevwid + 
+    cageform + cmedtown + cmedcity + cbigcity + cprot + ccath + 
+    cpracprot + cpraccath + cothrel + byear1880div100c + (1 + byear1880div100c| SurveyCountry)
+    +crnonman * cgdp3 + cmanager * cgdp3+cglobeindexb + cprof * 
+    cgdp3 + cchild +cgdp3*byear1880div100c+byear1880div100c*cintnetc, data=WVSEVScombined, 
+    na.action = na.omit)
+display(modint1,digits=3)
+#-------------------------------------------------------------------
+#Table A2, Model 2
+#-------------------------------------------------------------------
+
+modint2<-lmer(formula = HomoScale ~ cmale+ cgdp3 + cnevmar + cdevwid + 
+    cageform + cmedtown + cmedcity + cbigcity + cprot + ccath + 
+    cpracprot + cpraccath + cothrel + byear1880div100c + (1 + byear1880div100c| SurveyCountry) +crnonman * cgdp3 + cmanager * cgdp3 + cprof * 
+    cgdp3 + cchild+cglobeindexb  +cgdp3*byear1880div100c+byear1880div100c*cintnetc, 
+    na.action = na.omit,data=WVSEVScombined, subset=(year<=2000))
+display(modint2,digits=3)
+#-------------------------------------------------------------------
+#Table A2, Model 3
+#-------------------------------------------------------------------
+
+modint3<-lmer(formula = HomoScale ~ cmale+ cgdp3 + cnevmar + cdevwid + 
+    cageform + cmedtown + cmedcity + cbigcity + cprot + ccath + 
+    cpracprot + cpraccath+cglobeindexb + cothrel + byear1880div100c + (1 + byear1880div100c| SurveyCountry) +crnonman * cgdp3+cglobeindexb + cmanager * cgdp3 + cprof * 
+    cgdp3 + cchild +cgdp3*byear1880div100c+byear1880div100c*cintnetc, 
+    na.action = na.omit,data=WVSEVScombined, subset=(year>2000))
+display(modint3,digits=3)
+#-------------------------------------------------------------------
+#Table A2, Model 4
+#-------------------------------------------------------------------
+
+modint4<-lmer(formula = HomoScale ~ cmale+ cgdp3 + cnevmar + cdevwid + 
+    cageform + cmedtown + cmedcity + cbigcity + cprot + ccath + 
+    cpracprot + cpraccath + cothrel + byear1880div100c + (1 + byear1880div100c| SurveyCountry) +crnonman * cgdp3 + cmanager * cgdp3+cglobeindexb+cfree3b*byear1880div100c + cprof * 
+    cgdp3 + cchild +cgdp3*byear1880div100c+byear1880div100c*cintnetc, 
+    na.action = na.omit,data=WVSEVScombined, subset=(year>2000))
+display(modint4,digits=3)
